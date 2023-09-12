@@ -2,7 +2,7 @@
 // Función para eliminar un registro por clave
 function eliminarRegistro($clave) {
     try {
-        $url = "pgsql:host=172.17.0.2;port=5432;dbname=mydb;";
+        $url = "pgsql:host=172.17.0.3;port=5432;dbname=mydb;";
         $user = "postgres";
         $password = "pass";
         $pdo = new PDO($url, $user, $password);
@@ -24,7 +24,7 @@ $telefonoDefault = "";
 
 if (isset($_GET['clave'])) {
     try {
-        $url = "pgsql:host=172.17.0.2;port=5432;dbname=mydb;";
+        $url = "pgsql:host=172.17.0.3;port=5432;dbname=mydb;";
         $user = "postgres";
         $password = "pass";
         $pdo = new PDO($url, $user, $password);
@@ -40,8 +40,8 @@ if (isset($_GET['clave'])) {
             $nombreDefault = $fila['nombre'];
             $direccionDefault = $fila['direccion'];
             $telefonoDefault = $fila['telefono'];
+                   
         }
-
         $pdo = null;
     } catch (PDOException $e) {
         die('Error en la conexión a la base de datos: ' . $e->getMessage());
@@ -50,7 +50,7 @@ if (isset($_GET['clave'])) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
-        $url = "pgsql:host=172.17.0.2;port=5432;dbname=mydb;";
+        $url = "pgsql:host=172.17.0.3;port=5432;dbname=mydb;";
         $user = "postgres";
         $password = "pass";
         $pdo = new PDO($url, $user, $password);
@@ -71,7 +71,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt = $pdo->prepare($query);
             $stmt->execute([$nombre, $direccion, $telefono]);
         }
-
         $pdo = null;
 
         // Redireccionar a la página principal después de realizar la operación
@@ -110,7 +109,7 @@ if (isset($_GET['borrar'])) {
             </tr>
             <tr>
                 <td>Telefono</td> <td><input type="number" name="telefono" id="telefono" value="<?php echo $telefonoDefault; ?>" required/></td>
-                <td><input type="submit" value="Guardar"></td>
+                <td><input type="submit" value="Guardar"> </td>
             </tr>
         </table>
     </form>
@@ -123,7 +122,7 @@ if (isset($_GET['borrar'])) {
         <?php
         $user = "postgres";
         $password = "pass";
-        $url = "pgsql:host=172.17.0.2;port=5432;dbname=mydb";
+        $url = "pgsql:host=172.17.0.3;port=5432;dbname=mydb";
         $pdo = new PDO($url, $user, $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
         $query = "SELECT * FROM mytable";
         $stmt = $pdo->prepare($query);
@@ -135,11 +134,20 @@ if (isset($_GET['borrar'])) {
             echo "  <td>"; echo $fila['nombre']; echo "</td>";
             echo "  <td>"; echo $fila['direccion']; echo "</td>";
             echo "  <td>"; echo $fila['telefono']; echo "</td>";
-            echo "  <td> <a href=\"{$_SERVER['PHP_SELF']}?clave={$fila['clave']}\"> Editar </a></td>";
-            echo "  <td> <a href=\"{$_SERVER['PHP_SELF']}?borrar={$fila['clave']}\"> Borrar </a></td>  </tr>";
+            echo "  <td> <a href=\"{$_SERVER['PHP_SELF']}?clave={$fila['clave']}\" onclick=\"mostrarCancelar()\" > Editar </a></td>";
+            echo "  <td> <a href='#' onclick=\"confirmarBorrar('{$fila['clave']}')\"> Borrar </a></td></tr>";
+
         }
         ?>
     </table>
+    <script>
+        function confirmarBorrar(clave) {
+            if (confirm("¿Estás seguro de que deseas borrar este registro?")) {
+                window.location.href = "<?php echo $_SERVER['PHP_SELF']; ?>?borrar=" + clave;
+            }
+        }
+
+    </script>
 </div>
 
 </body>
